@@ -4,3 +4,4 @@ wordfreq_ck
 __pycache__/
 config.*
 .vscode
+.idea

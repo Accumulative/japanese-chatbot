@@ -6,17 +6,35 @@ FONT = ('Helvetica', '12')
 
 class Window(tk.Frame):
     def __init__(self, master, send_func, quit_func):
-        self.user_input = tk.StringVar()
-        self.user_input_answer= tk.StringVar()
+        self.type_label_arr = []
+        self.reading_label_arr = []
+        self.def_label_arr = []
+
         self.frame = tk.Frame(master)
         self.frame.grid(row=0, column=0, sticky=tk.N+tk.S+tk.E+tk.W)
-        self.create_widgets(send_func, quit_func)
+
         self.waiting = False
-        self.question_buttons = []
-        self.question_answer = tk.StringVar()
         self.sound = False
 
-    def create_widgets(self, send_func, quit_func):
+        self.question_buttons = []
+        self.question_answer = tk.StringVar()
+        self.user_input = tk.StringVar()
+        self.user_input_answer = tk.StringVar()
+
+        self.question_label = tk.Label(master=self.frame, text="Question", font="Helvetica 14 bold")
+        self.type_label = tk.Label(master=self.frame, text="Word type", font="Helvetica 14 bold")
+        self.reading_label = tk.Label(master=self.frame, text="Reading", font="Helvetica 14 bold")
+        self.def_label = tk.Label(master=self.frame, text="Definitions", font="Helvetica 14 bold")
+        self.dic_label = tk.Label(master=self.frame, text="Dictionary", font="Helvetica 16 bold")
+        self.quit = tk.Button(master=self.frame, text="QUIT", fg="red", command=quit_func)
+        self.play_btn = tk.Button(master=self.frame, text="Sound off", command=lambda: self.switch_sound())
+        self.send_btn = tk.Button(master=self.frame, text="Send", command=lambda: self.send_message(send_func))
+        self.user_textbox = tk.Entry(master=self.frame, textvariable=self.user_input, font=FONT)
+        self.chat_box = tk.Text(master=self.frame)
+
+        self.create_widgets(send_func)
+
+    def create_widgets(self, send_func):
 
         for x in range(30):
             tk.Grid.columnconfigure(self.frame, x, weight=1)
@@ -24,43 +42,29 @@ class Window(tk.Frame):
         for y in range(40):
             tk.Grid.rowconfigure(self.frame, y, weight=1)
 
-        self.chat_box = tk.Text(master=self.frame)
         self.chat_box.grid(column=0, row=0, columnspan=15, rowspan=30, sticky=tk.N+tk.S+tk.E+tk.W)
         self.chat_box.configure(state='disabled')
         self.chat_box.config({"background": "light grey"})
 
-        self.user_textbox = tk.Entry(master=self.frame, textvariable=self.user_input, font=FONT)
         self.user_textbox.grid(column=3, row=32, columnspan=9, rowspan=2, sticky=tk.N+tk.S+tk.E+tk.W)
         self.user_textbox.bind('<Return>', (lambda event: self.send_message(send_func)))
 
-        self.send_btn = tk.Button(master=self.frame, text="Send", command= lambda: self.send_message(send_func))
         self.send_btn.grid(column=3, row=34, columnspan=5, rowspan=1, sticky=tk.N+tk.S+tk.E+tk.W)
 
-        self.play_btn = tk.Button(master=self.frame, text="Sound off", command= lambda: self.switch_sound())
         self.play_btn.grid(column=8, row=34, columnspan=4, rowspan=1, sticky=tk.N+tk.S+tk.E+tk.W)
 
-        self.quit = tk.Button(master=self.frame, text="QUIT", fg="red",
-                              command=quit_func)
         self.quit.grid(column=5, row=35, columnspan=5, rowspan=1, sticky=tk.N+tk.S+tk.E+tk.W)
 
-        self.dic_label = tk.Label(master=self.frame, text="Dictionary", font = "Helvetica 16 bold")
         self.dic_label.grid(column=16, row=0, columnspan = 8, sticky=tk.N+tk.S+tk.E+tk.W)
 
-        self.def_label = tk.Label(master=self.frame, text="Definitions", font = "Helvetica 14 bold")
         self.def_label.grid(column=16, row=1, columnspan = 8, sticky=tk.N+tk.S+tk.E+tk.W)
 
-        self.reading_label = tk.Label(master=self.frame, text="Reading", font = "Helvetica 14 bold")
         self.reading_label.grid(column=16, row=7, columnspan = 8, sticky=tk.N+tk.S+tk.E+tk.W)
 
-        self.type_label = tk.Label(master=self.frame, text="Word type", font = "Helvetica 14 bold")
         self.type_label.grid(column=16, row=13, columnspan = 8, sticky=tk.N+tk.S+tk.E+tk.W)
 
-        self.question_label = tk.Label(master=self.frame, text="Question", font = "Helvetica 14 bold")
         self.question_label.grid(column=16, row=20, columnspan = 8, sticky=tk.N+tk.S+tk.E+tk.W)
 
-        self.def_label_arr = []
-        self.reading_label_arr = []
-        self.type_label_arr = []
         for i in range(5):
             self.def_label_arr.append(tk.Label(master=self.frame, text=""))
             self.def_label_arr[-1].grid(column=16, row=2+i, columnspan = 8, sticky=tk.N+tk.S+tk.E+tk.W)
@@ -68,7 +72,6 @@ class Window(tk.Frame):
             self.reading_label_arr[-1].grid(column=16, row=8+i, columnspan = 8, sticky=tk.N+tk.S+tk.E+tk.W)
             self.type_label_arr.append(tk.Label(master=self.frame, text=""))
             self.type_label_arr[-1].grid(column=16, row=14+i, columnspan = 8, sticky=tk.N+tk.S+tk.E+tk.W)
-        
 
     def send_message(self, ex_func):
             msg_in = self.user_input.get()
@@ -113,7 +116,6 @@ class Window(tk.Frame):
             self.reading_label_arr[i].config(text=(result.readings[i] if i < len(result.readings) else ""))
             self.type_label_arr[i].config(text=(result.types[i] if i < len(result.types) else ""))
 
-
     def ask(self, msg, answers):
         self.waiting = True
 
@@ -141,8 +143,6 @@ class Window(tk.Frame):
         self.sound = self.sound == False
         self.play_btn.config(text=("Sound on" if self.sound else "Sound off"))
 
-
     def play_sound(self, msg):
-        
         system(f'say {msg}')
 

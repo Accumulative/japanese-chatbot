@@ -180,6 +180,3 @@ class TinySegmenter():
         result.append(word)
 
         return result
-
-if __name__ == '__main__':
-    demo()
